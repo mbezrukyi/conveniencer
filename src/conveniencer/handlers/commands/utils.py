@@ -1,14 +1,9 @@
-from dataclasses import dataclass
+from collections import namedtuple
 from typing import List
 
 from aiogram.utils.formatting import Bold, Code, Text
 
-
-@dataclass
-class Command:
-    name: str
-    desc: str
-
+Command = namedtuple("Command", ["name", "desc"])
 
 commands_list: List[Command] = [
     Command(name="start", desc="Start bot"),
