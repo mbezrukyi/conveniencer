@@ -1,8 +1,8 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 
+from conveniencer import handlers
 from conveniencer.config import load_config
-from conveniencer.handlers import start, commands
 
 
 async def main() -> None:
@@ -12,8 +12,7 @@ async def main() -> None:
 
     dp = Dispatcher()
     dp.include_routers(
-        start.router,
-        commands.router,
+        handlers.router,
     )
 
     return await dp.start_polling(bot)
