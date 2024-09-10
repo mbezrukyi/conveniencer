@@ -1,0 +1,17 @@
+[project]
+name = 'conveniencer'
+version = '0.0.1'
+dependencies = [
+    'asyncio >= 3.4.3',
+    'aiogram >= 3.13.0',
+]
+
+[project.scripts]
+run = 'conveniencer.main:cli'
+
+[tool.setuptools.packages.find]
+where = ['src']
+
+[build-system]
+requires = ['setuptools']
+build-backend = 'setuptools.build_meta'
