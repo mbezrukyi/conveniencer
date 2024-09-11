@@ -8,7 +8,7 @@ Command = namedtuple("Command", ["name", "desc"])
 commands_list: List[Command] = [
     Command(name="start", desc="Start bot"),
     Command(name="categories", desc="List categories"),
-    Command(name="commands", desc="List commands"),
+    Command(name="help", desc="List commands"),
 ]
 
 

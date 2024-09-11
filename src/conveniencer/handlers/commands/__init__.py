@@ -1,11 +1,11 @@
 from aiogram import Router
 
-from . import categories, commands, start
+from . import categories, help, start
 
 router = Router(name="commands")
 
 router.include_routers(
     categories.router,
-    commands.router,
+    help.router,
     start.router,
 )

@@ -8,8 +8,8 @@ from .utils import build_text_commands
 router = Router(name=__name__)
 
 
-@router.message(Command("commands"))
-async def command_commands_handler(message: Message) -> None:
+@router.message(Command("help"))
+async def command_help_handler(message: Message) -> None:
     content = as_section(
         "List of commands:",
         *build_text_commands(),
