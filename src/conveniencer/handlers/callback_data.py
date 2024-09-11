@@ -21,3 +21,8 @@ class CategoryAction(Enum):
 
 class CallbackCategoryAction(CallbackData, prefix="can"):
     category_action: CategoryAction
+
+
+class CallbackDataType(Enum):
+    CATEGORY = "category"
+    CATEGORY_ACTION = "category_action"
