@@ -1,12 +1,11 @@
 # Python environment
 env/
-__pycache__/
 
-# IDE
+# Git folder
+.git/
+
+# IDE folder
 .idea/
-
-# Configuration
-.bot
 
 # Python built directories
 *.egg-info/
