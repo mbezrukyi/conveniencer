@@ -29,11 +29,45 @@ async def handle_books_category(
 ) -> None:
     await state.set_state(Action.book)
 
+    # TODO: Add unique handler for different category
+
+    # processor = CategoryProcessor(mongo.books)
+
+    # processor.add()
+    # processor.remove()
+    # processor.as_list()
+
     # TODO: Display list of already added books
+
+    # books = await mongo.books.find()
+
+    # chat_id = query.message.chat.id
+
+    # if books:
+    #     await bot.send_message(chat_id=chat_id, text="Your books:")
+    #
+    #     async for book in books:
+    #         await bot.send_document(
+    #             chat_id=chat_id,
+    #             document=book.file_id,
+    #             caption=book.name,
+    #         )
+    #
+    #     await bot.send_message(
+    #         chat_id=chat_id,
+    #         text="What do you want to do?",
+    #         reply_markup=build_add_remove_keyboard(),
+    #     )
+    # else:
+    #     await bot.send_message(
+    #         chat_id=chat_id,
+    #         text="Add your first book",
+    #         reply_markup=build_add_remove_keyboard(),
+    #     )
 
     await bot.send_message(
         chat_id=query.message.chat.id,
-        text="This is `Books` category",
+        text="Your books:",
         reply_markup=build_add_remove_keyboard(),
     )
 
@@ -50,7 +84,7 @@ async def handle_add_book(
     await state.set_state(Action.add_book)
 
     content = Text(
-        "Write a book name and attach a book (",
+        "Specify a book name and attach a book (",
         Italic(".pdf"),
         ")",
     )
@@ -69,6 +103,22 @@ async def handle_add_book(
 )
 async def add_book(message: Message, state: FSMContext) -> None:
     # TODO: Write the logic to add the book
+
+    # name = message.caption
+    # file_id = message.document.file_id
+
+    # try:
+    #     collection.insert_one(
+    #         {
+    #             "name": name,
+    #             "file_id": file_id,
+    #         },
+    #     )
+    # except SomeError:
+    #     collection.update_one(
+    #         {"name": name},
+    #         {"$set": {"file_id": file_id}},
+    #     )
 
     await message.answer("You've successfully added a new book!")
 
