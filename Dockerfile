@@ -1,7 +1,8 @@
 FROM python:3.12-slim
 
-ENV WORKDIR=/usr/local/conveniencer
-ENV VIRTUALENV=$WORKDIR/env
+ARG WORKDIR=/usr/local/conveniencer \
+    VIRTUALENV=$WORKDIR/env
+
 ENV PATH=$VIRTUALENV/bin/:$PATH
 
 WORKDIR $WORKDIR
