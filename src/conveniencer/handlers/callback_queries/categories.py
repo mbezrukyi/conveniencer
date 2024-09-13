@@ -6,6 +6,7 @@ from aiogram.utils.formatting import Italic, Text
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
+from conveniencer.database.processor import CollectionProcessor
 from conveniencer.filters.document_type import DocumentTypeFilter
 from ..callback_data import (
     CallbackCategory,
@@ -33,17 +34,11 @@ async def handle_books_category(
 ) -> None:
     await state.set_state(Action.book)
 
-    # TODO: Add unique handler for different category
-
-    # processor = CategoryProcessor(mongo.books)
-
-    # processor.add()
-    # processor.remove()
-    # processor.as_list()
-
-    books = await db.books.find().to_list(length=None)
-
     chat_id = query.message.chat.id
+
+    processor = CollectionProcessor(db.books)
+
+    books = await processor.to_list()
 
     if books:
         await bot.send_message(chat_id=chat_id, text="Your books:")
@@ -105,17 +100,14 @@ async def add_book(
     name = message.caption
     file_id = message.document.file_id
 
+    processor = CollectionProcessor(db.books)
+
     try:
-        await db.books.insert_one(
-            {
-                "name": name,
-                "file_id": file_id,
-            },
-        )
+        await processor.add({"name": name, "file_id": file_id})
     except DuplicateKeyError:
-        await db.books.update_one(
-            {"name": name},
-            {"$set": {"file_id": file_id}},
+        await processor.update(
+            by={"name": name},
+            data={"file_id": file_id},
         )
 
     await message.answer("You've successfully added a new book!")
@@ -148,7 +140,9 @@ async def remove_book(
 ) -> None:
     name = message.text
 
-    await db.books.delete_one({"name": name})
+    processor = CollectionProcessor(db.books)
+
+    await processor.remove(by={"name": name})
 
     await message.answer(f"You've successfully delete the {name} book!")
 
