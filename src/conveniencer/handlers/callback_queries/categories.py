@@ -2,11 +2,12 @@ from aiogram import Bot, F, Router
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.utils.formatting import Italic, Text
+from aiogram.utils.formatting import Bold, Italic, Text
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
 from conveniencer.database.processor import CollectionProcessor
+from conveniencer.database.entities import Book
 from conveniencer.filters.document_type import DocumentTypeFilter
 from ..callback_data import (
     CallbackCategory,
@@ -38,7 +39,7 @@ async def handle_books_category(
 
     processor = CollectionProcessor(db.books)
 
-    books = await processor.to_list()
+    books = await processor.to_list(Book)
 
     if books:
         await bot.send_message(chat_id=chat_id, text="Your books:")
@@ -46,8 +47,8 @@ async def handle_books_category(
         for book in books:
             await bot.send_document(
                 chat_id=chat_id,
-                document=book["file_id"],
-                caption=book["name"],
+                document=book.file_id,
+                caption=book.name,
             )
 
         await bot.send_message(
@@ -97,20 +98,24 @@ async def add_book(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    name = message.caption
-    file_id = message.document.file_id
+    book = Book(name=message.caption, file_id=message.document.file_id)
 
     processor = CollectionProcessor(db.books)
 
     try:
-        await processor.add({"name": name, "file_id": file_id})
+        await processor.add(book)
+
+        await message.answer("You've successfully added a new book!")
     except DuplicateKeyError:
-        await processor.update(
-            by={"name": name},
-            data={"file_id": file_id},
+        await processor.update(book)
+
+        content = Text(
+            "You've successfully updated the ",
+            Bold(book.name),
+            " book!",
         )
 
-    await message.answer("You've successfully added a new book!")
+        await message.answer(**content.as_kwargs())
 
     await state.clear()
 
@@ -138,12 +143,18 @@ async def remove_book(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    name = message.text
+    book = Book(name=message.text)
 
     processor = CollectionProcessor(db.books)
 
-    await processor.remove(by={"name": name})
+    await processor.remove(book)
 
-    await message.answer(f"You've successfully delete the {name} book!")
+    content = Text(
+        "You've successfully deleted the ",
+        Bold(book.name),
+        " book!",
+    )
+
+    await message.answer(**content.as_kwargs())
 
     await state.clear()
