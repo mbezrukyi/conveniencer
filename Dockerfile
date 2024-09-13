@@ -1,9 +1,15 @@
-FROM python:3.12-slim
-
 ARG WORKDIR=/usr/local/conveniencer \
-    VIRTUALENV=$WORKDIR/env
+    VIRTUALENV=$WORKDIR/env \
+    VPATH=$VIRTUALENV/bin
 
-ENV PATH=$VIRTUALENV/bin/:$PATH
+
+FROM python:3.12-slim AS build
+
+ARG WORKDIR \
+    VIRTUALENV \
+    VPATH
+
+ENV PATH=$VPATH:$PATH
 
 WORKDIR $WORKDIR
 
@@ -11,6 +17,21 @@ RUN python3 -m venv $VIRTUALENV
 
 COPY . .
 
-RUN pip install -e .
+RUN pip install .
+
+
+FROM python:3.12-slim AS final
+
+ARG WORKDIR \
+    VIRTUALENV \
+    VPATH
+
+ENV PATH=$VPATH:$PATH
+
+WORKDIR $WORKDIR
+
+COPY --from=build $VIRTUALENV $VIRTUALENV
+
+COPY .bot .
 
 CMD ["run"]
