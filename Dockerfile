@@ -15,6 +15,10 @@ WORKDIR $WORKDIR
 
 RUN python3 -m venv $VIRTUALENV
 
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
 COPY . .
 
 RUN pip install .
