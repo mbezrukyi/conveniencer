@@ -4,6 +4,7 @@ version = '0.0.1'
 dependencies = [
     'asyncio >= 3.4.3',
     'aiogram >= 3.13.0',
+    'motor >= 3.5.1',
 ]
 
 [project.scripts]
