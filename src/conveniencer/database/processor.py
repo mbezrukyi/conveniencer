@@ -6,8 +6,13 @@ from .entities import Entity
 
 
 class CollectionProcessor:
-    def __init__(self, collection: AsyncIOMotorCollection):
+    def __init__(
+        self,
+        collection: AsyncIOMotorCollection,
+        type_: Type[Entity],
+    ):
         self._collection = collection
+        self._type = type_
 
     async def add(self, entity: Entity) -> None:
         await self._collection.insert_one(entity.data)
@@ -21,9 +26,9 @@ class CollectionProcessor:
             {"$set": entity.update_data},
         )
 
-    async def to_list(self, type_: Type[Entity]) -> List[Entity]:
+    async def to_list(self) -> List[Entity]:
         return [
-            type_(**document)
+            self._type(**document)
             for document in await self._collection.find(
                 projection={"_id": False}
             ).to_list(length=None)

@@ -37,9 +37,9 @@ async def handle_books_category(
 
     chat_id = query.message.chat.id
 
-    processor = CollectionProcessor(db.books)
+    processor = CollectionProcessor(db.books, Book)
 
-    books = await processor.to_list(Book)
+    books = await processor.to_list()
 
     if books:
         await bot.send_message(chat_id=chat_id, text="Your books:")
@@ -100,7 +100,7 @@ async def add_book(
 ) -> None:
     book = Book(name=message.caption, file_id=message.document.file_id)
 
-    processor = CollectionProcessor(db.books)
+    processor = CollectionProcessor(db.books, Book)
 
     try:
         await processor.add(book)
@@ -145,7 +145,7 @@ async def remove_book(
 ) -> None:
     book = Book(name=message.text)
 
-    processor = CollectionProcessor(db.books)
+    processor = CollectionProcessor(db.books, Book)
 
     await processor.remove(book)
 
