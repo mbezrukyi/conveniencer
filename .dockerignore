@@ -1,5 +1,6 @@
 # Python environment
 env/
+__pycache__/
 
 # Git folder
 .git/
