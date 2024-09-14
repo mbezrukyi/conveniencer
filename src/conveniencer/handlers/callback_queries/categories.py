@@ -8,6 +8,7 @@ from pymongo.errors import DuplicateKeyError
 
 from conveniencer.database.processor import CollectionProcessor
 from conveniencer.database.entities import Book
+from conveniencer.database.errors import NoDocumentError
 from conveniencer.filters.document_type import DocumentTypeFilter
 from ..callback_data import (
     CallbackCategory,
@@ -105,7 +106,11 @@ async def add_book(
     try:
         await processor.add(book)
 
-        await message.answer("You've successfully added a new book!")
+        content = Text(
+            "You've successfully added the ",
+            Bold(book.name),
+            " book!",
+        )
     except DuplicateKeyError:
         await processor.update(book)
 
@@ -115,7 +120,7 @@ async def add_book(
             " book!",
         )
 
-        await message.answer(**content.as_kwargs())
+    await message.answer(**content.as_kwargs())
 
     await state.clear()
 
@@ -147,14 +152,21 @@ async def remove_book(
 
     processor = CollectionProcessor(db.books, Book)
 
-    await processor.remove(book)
+    try:
+        await processor.remove(book)
 
-    content = Text(
-        "You've successfully deleted the ",
-        Bold(book.name),
-        " book!",
-    )
+        content = Text(
+            "You've successfully deleted the ",
+            Bold(book.name),
+            " book!",
+        )
+
+    except NoDocumentError:
+        content = Text(
+            "No book with name ",
+            Bold(book.name),
+            " was found.",
+        )
 
     await message.answer(**content.as_kwargs())
-
     await state.clear()

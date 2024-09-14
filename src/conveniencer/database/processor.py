@@ -3,6 +3,7 @@ from typing import List, Type
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from .entities import Entity
+from .errors import NoDocumentError
 
 
 class CollectionProcessor:
@@ -18,7 +19,10 @@ class CollectionProcessor:
         await self._collection.insert_one(entity.data)
 
     async def remove(self, entity: Entity) -> None:
-        await self._collection.delete_one(entity.remove_by)
+        result = await self._collection.delete_one(entity.remove_by)
+
+        if result.deleted_count == 0:
+            raise NoDocumentError("No document was found to delete.")
 
     async def update(self, entity: Entity) -> None:
         await self._collection.update_one(
