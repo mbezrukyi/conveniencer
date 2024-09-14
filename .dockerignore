@@ -10,3 +10,6 @@ __pycache__/
 
 # Python built directories
 *.egg-info/
+
+# Configuration files
+.env

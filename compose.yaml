@@ -1,0 +1,26 @@
+services:
+  conviniencer:
+    build: .
+    networks:
+      - conviniencer
+
+  mongo:
+    image: mongo
+    networks:
+      conviniencer:
+        aliases:
+          - mongo
+    volumes:
+      - mongo:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+
+networks:
+  conviniencer:
+    driver: bridge
+
+
+volumes:
+  mongo:

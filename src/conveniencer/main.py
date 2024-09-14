@@ -9,7 +9,12 @@ from conveniencer.config import load_config
 async def main() -> None:
     config = load_config(".bot")
 
-    mongo = AsyncIOMotorClient("localhost", 27017)
+    mongo = AsyncIOMotorClient(
+        host=config.mongo.host,
+        port=config.mongo.port,
+        username=config.mongo.username,
+        password=config.mongo.password,
+    )
     db = mongo.conviniencer
 
     bot = Bot(token=config.bot.token)
