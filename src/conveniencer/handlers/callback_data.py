@@ -4,9 +4,8 @@ from aiogram.filters.callback_data import CallbackData
 
 
 class Category(Enum):
-    AUDIOS = "audios"
     BOOKS = "books"
-    PHOTOS = "photos"
+    LINKS = "links"
     OTHER = "other"
 
 

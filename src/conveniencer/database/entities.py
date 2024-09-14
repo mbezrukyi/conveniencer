@@ -49,13 +49,13 @@ class Book(Entity):
 @dataclass
 class Link(Entity):
     name: str
-    link: Optional[str] = None
+    url: Optional[str] = None
 
     @property
     def data(self) -> Dict[str, Any]:
         return {
             "name": self.name,
-            "link": self.link,
+            "url": self.url,
         }
 
     @property
@@ -64,7 +64,7 @@ class Link(Entity):
 
     @property
     def update_data(self) -> Dict[str, Any]:
-        return {"link": self.link}
+        return {"url": self.url}
 
     @property
     def remove_by(self) -> Dict[str, Any]:
