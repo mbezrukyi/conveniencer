@@ -10,6 +10,7 @@ from conveniencer.database.processor import CollectionProcessor
 from conveniencer.database.entities import Book, Link
 from conveniencer.database.errors import NoDocumentError
 from conveniencer.filters.document_type import DocumentTypeFilter
+from conveniencer.filters.link import LinkFilter
 from ..callback_data import (
     CallbackCategory,
     CallbackCategoryAction,
@@ -235,10 +236,7 @@ async def handle_add_link(
     )
 
 
-@router.message(
-    Action.add_link,
-    F.text.regexp(r"^\w+:\s*?(http|https):\/\/[a-zA-Z0-9]+?\.[a-zA-Z]\S*?$"),
-)
+@router.message(Action.add_link, LinkFilter())
 async def add_link(
     message: Message,
     state: FSMContext,
