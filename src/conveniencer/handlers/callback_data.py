@@ -6,6 +6,7 @@ from aiogram.filters.callback_data import CallbackData
 class Category(Enum):
     BOOKS = "books"
     LINKS = "links"
+    PHOTOS = "photos"
     OTHER = "other"
 
 
