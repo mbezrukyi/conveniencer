@@ -11,7 +11,12 @@ services:
         aliases:
           - mongo
     volumes:
-      - mongo:/data/db
+      - type: volume
+        source: mongo
+        target: /data/db
+      - type: bind
+        source: ./indexes.js
+        target: /docker-entrypoint-initdb.d/indexes.js
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
