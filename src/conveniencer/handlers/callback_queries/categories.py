@@ -1,3 +1,5 @@
+from typing import List
+
 from aiogram import Bot, F, Router
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
@@ -342,39 +344,8 @@ async def handle_photos_category(
         await bot.send_message(chat_id=chat_id, text="Your photos:")
 
         for photo in photos:
-            if photo.photo_ids:
-                photo_media_group = MediaGroupBuilder()
-
-                for i, photo_id in enumerate(photo.photo_ids):
-                    if i == 0:
-                        photo_media_group.add_photo(
-                            media=photo_id,
-                            caption=photo.name,
-                        )
-                    else:
-                        photo_media_group.add_photo(media=photo_id)
-
-                await bot.send_media_group(
-                    chat_id=chat_id,
-                    media=photo_media_group.build(),
-                )
-
-            if photo.document_ids:
-                document_media_group = MediaGroupBuilder()
-
-                for i, document_id in enumerate(photo.document_ids):
-                    if i == len(photo.document_ids) - 1:
-                        document_media_group.add_document(
-                            media=document_id,
-                            caption=photo.name,
-                        )
-                    else:
-                        document_media_group.add_document(media=document_id)
-
-                await bot.send_media_group(
-                    chat_id=chat_id,
-                    media=document_media_group.build(),
-                )
+            await send_photos(chat_id, bot, photo.photo_ids, photo.name)
+            await send_documents(chat_id, bot, photo.document_ids, photo.name)
 
         await bot.send_message(
             chat_id=chat_id,
@@ -386,6 +357,54 @@ async def handle_photos_category(
             chat_id=chat_id,
             text="Add your first photo",
             reply_markup=build_add_remove_keyboard(),
+        )
+
+
+async def send_photos(
+    chat_id: str,
+    bot: Bot,
+    photo_ids: List[str],
+    caption: str,
+) -> None:
+    if photo_ids:
+        photo_media_group = MediaGroupBuilder()
+
+        for i, photo_id in enumerate(photo_ids):
+            if i == 0:
+                photo_media_group.add_photo(
+                    media=photo_id,
+                    caption=caption,
+                )
+            else:
+                photo_media_group.add_photo(media=photo_id)
+
+        await bot.send_media_group(
+            chat_id=chat_id,
+            media=photo_media_group.build(),
+        )
+
+
+async def send_documents(
+    chat_id: str,
+    bot: Bot,
+    document_ids: List[str],
+    caption: str,
+) -> None:
+    if document_ids:
+        document_media_group = MediaGroupBuilder()
+
+        for i, document_id in enumerate(document_ids):
+            if i == len(document_ids) - 1:
+                document_media_group.add_document(
+                    media=document_id,
+                    caption=caption,
+                )
+            else:
+                document_media_group.add_document(media=document_id)
+
+        await bot.send_media_group(
+            chat_id=chat_id,
+            media=document_media_group.build(),
         )
 
 
@@ -444,7 +463,7 @@ async def add_photo(
     document_ids = data.get("document_ids", [])
 
     if not (photo_ids or document_ids):
-        await message.answer("You did not paste any images. Try again.")
+        await message.answer("You did not paste any images. Try again")
 
         return None
 
