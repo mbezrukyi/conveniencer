@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Type
 
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.filters.callback_data import CallbackData
@@ -15,7 +16,7 @@ from .callback_data import (
 
 def build_keyboard(
     items: Enum,
-    callback_cls: CallbackData,
+    callback_cls: Type[CallbackData],
     callback_data_type: CallbackDataType,
 ) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
