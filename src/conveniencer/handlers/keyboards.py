@@ -17,7 +17,7 @@ def build_keyboard(
     items: Enum,
     callback_cls: CallbackData,
     callback_data_type: CallbackDataType,
-) -> InlineKeyboardMarkup:
+) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
 
     for item in items:
@@ -26,14 +26,18 @@ def build_keyboard(
             callback_data=callback_cls(**{callback_data_type.value: item}),
         )
 
-    return builder.as_markup()
+    return builder
 
 
 def build_categories_keyboard() -> InlineKeyboardMarkup:
-    return build_keyboard(
-        Category,
-        CallbackCategory,
-        CallbackDataType.CATEGORY,
+    return (
+        build_keyboard(
+            Category,
+            CallbackCategory,
+            CallbackDataType.CATEGORY,
+        )
+        .adjust(1, repeat=True)
+        .as_markup()
     )
 
 
@@ -42,4 +46,4 @@ def build_add_remove_keyboard() -> InlineKeyboardMarkup:
         CategoryAction,
         CallbackCategoryAction,
         CallbackDataType.CATEGORY_ACTION,
-    )
+    ).as_markup()
