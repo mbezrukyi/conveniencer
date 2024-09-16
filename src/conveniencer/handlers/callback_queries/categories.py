@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
 from conveniencer.database.processor import CollectionProcessor
-from conveniencer.database.entities import Book, Link, Photo
+from conveniencer.database.entities import Archive, Book, Link, Photo
 from conveniencer.database.errors import NoDocumentError
 from conveniencer.filters.document_type import DocumentTypeFilter
 from conveniencer.filters.link import LinkFilter
@@ -37,6 +37,10 @@ class Action(StatesGroup):
     photo = State()
     add_photo = State()
     remove_photo = State()
+
+    archive = State()
+    add_archive = State()
+    remove_archive = State()
 
 
 @router.callback_query(CallbackCategory.filter(F.category == Category.BOOKS))
@@ -89,7 +93,7 @@ async def handle_add_book(
     await state.set_state(Action.add_book)
 
     content = Text(
-        "Specify a book name and attach a book (",
+        "Specify a book name and attach a file (",
         Italic(".pdf"),
         ")",
     )
@@ -536,6 +540,160 @@ async def remove_photo(
         content = Text(
             "No photo with name ",
             Bold(photo.name),
+            " was found.",
+        )
+
+    await message.answer(**content.as_kwargs())
+
+    await state.clear()
+
+
+@router.callback_query(
+    CallbackCategory.filter(F.category == Category.ARCHIVES)
+)
+async def handle_archives_category(
+    query: CallbackQuery,
+    bot: Bot,
+    state: FSMContext,
+    db: AsyncIOMotorDatabase,
+) -> None:
+    await state.set_state(Action.archive)
+
+    chat_id = query.message.chat.id
+
+    processor = CollectionProcessor(db.archives, Archive)
+
+    archives = await processor.to_list()
+
+    if archives:
+        await bot.send_message(chat_id=chat_id, text="Your archives:")
+
+        for archive in archives:
+            await bot.send_document(
+                chat_id=chat_id,
+                document=archive.file_id,
+                caption=archive.name,
+            )
+
+        await bot.send_message(
+            chat_id=chat_id,
+            text="What do you want to do?",
+            reply_markup=build_add_remove_keyboard(),
+        )
+    else:
+        await bot.send_message(
+            chat_id=chat_id,
+            text="Add your first archive",
+            reply_markup=build_add_remove_keyboard(),
+        )
+
+
+@router.callback_query(
+    Action.archive,
+    CallbackCategoryAction.filter(F.category_action == CategoryAction.ADD),
+)
+async def handle_add_archive(
+    query: CallbackQuery,
+    bot: Bot,
+    state: FSMContext,
+) -> None:
+    await state.set_state(Action.add_archive)
+
+    content = Text(
+        "Specify an archive name and attach a file (",
+        Italic(".tar, "),
+        Italic(".tar.gz, "),
+        Italic(".zip, "),
+        Italic(".rar"),
+        ")",
+    )
+
+    await bot.send_message(
+        chat_id=query.message.chat.id,
+        **content.as_kwargs(),
+    )
+
+
+@router.message(
+    Action.add_archive,
+    F.caption,
+    F.document,
+    DocumentTypeFilter(".tar", ".tar.gz", ".zip", ".rar"),
+)
+async def add_archive(
+    message: Message,
+    state: FSMContext,
+    db: AsyncIOMotorDatabase,
+) -> None:
+    archive = Archive(
+        name=message.caption,
+        file_id=message.document.file_id,
+    )
+
+    processor = CollectionProcessor(db.archives, Archive)
+
+    try:
+        await processor.add(archive)
+
+        content = Text(
+            "You've successfully added the ",
+            Bold(archive.name),
+            " archive!",
+        )
+    except DuplicateKeyError:
+        await processor.update(archive)
+
+        content = Text(
+            "You've successfully updated the ",
+            Bold(archive.name),
+            " archive!",
+        )
+
+    await message.answer(**content.as_kwargs())
+
+    await state.clear()
+
+
+@router.callback_query(
+    Action.archive,
+    CallbackCategoryAction.filter(F.category_action == CategoryAction.REMOVE),
+)
+async def handle_remove_archive(
+    query: CallbackQuery,
+    bot: Bot,
+    state: FSMContext,
+) -> None:
+    await state.set_state(Action.remove_archive)
+
+    await bot.send_message(
+        chat_id=query.message.chat.id,
+        text="Specify an archive name to delete",
+    )
+
+
+@router.message(Action.remove_archive, F.text)
+async def remove_archive(
+    message: Message,
+    state: FSMContext,
+    db: AsyncIOMotorDatabase,
+) -> None:
+    archive = Archive(name=message.text)
+
+    processor = CollectionProcessor(db.archives, Archive)
+
+    try:
+        await processor.remove(archive)
+
+        content = Text(
+            "You've successfully deleted the ",
+            Bold(archive.name),
+            " archive!",
+        )
+
+    except NoDocumentError:
+        content = Text(
+            "No archive with name ",
+            Bold(archive.name),
             " was found.",
         )
 

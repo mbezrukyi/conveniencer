@@ -7,6 +7,7 @@ class Category(Enum):
     BOOKS = "books"
     LINKS = "links"
     PHOTOS = "photos"
+    ARCHIVES = "archives"
     OTHER = "other"
 
 

@@ -99,3 +99,31 @@ class Photo(Entity):
     @property
     def remove_by(self) -> Dict[str, Any]:
         return {"name": self.name}
+
+
+@dataclass
+class Archive(Entity):
+    name: str
+    file_id: Optional[str] = None
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "file_id": self.file_id,
+        }
+
+    @property
+    def update_by(self) -> Dict[str, Any]:
+        return {"name": self.name}
+
+    @property
+    def update_data(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "file_id": self.file_id,
+        }
+
+    @property
+    def remove_by(self) -> Dict[str, Any]:
+        return {"name": self.name}
