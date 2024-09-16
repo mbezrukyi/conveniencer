@@ -18,17 +18,17 @@ class CollectionProcessor:
     async def add(self, entity: Entity) -> None:
         await self._collection.insert_one(entity.data)
 
+    async def replace(self, entity: Entity) -> None:
+        await self._collection.update_one(
+            entity.update_by,
+            {"$set": entity.update_data},
+        )
+
     async def remove(self, entity: Entity) -> None:
         result = await self._collection.delete_one(entity.remove_by)
 
         if result.deleted_count == 0:
             raise NoDocumentError("No document was found to delete.")
-
-    async def update(self, entity: Entity) -> None:
-        await self._collection.update_one(
-            entity.update_by,
-            {"$set": entity.update_data},
-        )
 
     async def to_list(self) -> List[Entity]:
         return [

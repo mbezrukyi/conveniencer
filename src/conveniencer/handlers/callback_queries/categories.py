@@ -128,7 +128,7 @@ async def add_book(
             " book!",
         )
     except DuplicateKeyError:
-        await processor.update(book)
+        await processor.replace(book)
 
         content = Text(
             "You've successfully updated the ",
@@ -268,7 +268,7 @@ async def add_link(
             " link!",
         )
     except DuplicateKeyError:
-        await processor.update(link)
+        await processor.replace(link)
 
         content = Text(
             "You've successfully updated the ",
@@ -488,7 +488,7 @@ async def add_photo(
             " photo!",
         )
     except DuplicateKeyError:
-        await processor.update(photo)
+        await processor.replace(photo)
 
         content = Text(
             "You've successfully updated the ",
@@ -641,7 +641,7 @@ async def add_archive(
             " archive!",
         )
     except DuplicateKeyError:
-        await processor.update(archive)
+        await processor.replace(archive)
 
         content = Text(
             "You've successfully updated the ",
