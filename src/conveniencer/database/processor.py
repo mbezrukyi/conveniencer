@@ -20,12 +20,12 @@ class CollectionProcessor:
 
     async def replace(self, entity: Entity) -> None:
         await self._collection.update_one(
-            entity.update_by,
-            {"$set": entity.update_data},
+            entity.by,
+            {"$set": entity.replace},
         )
 
     async def remove(self, entity: Entity) -> None:
-        result = await self._collection.delete_one(entity.remove_by)
+        result = await self._collection.delete_one(entity.by)
 
         if result.deleted_count == 0:
             raise NoDocumentError("No document was found to delete.")

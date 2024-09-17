@@ -5,19 +5,15 @@ from typing import Any, Dict, List, Optional
 
 class Entity(ABC):
     @abstractmethod
+    def by(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
     def data(self) -> Dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
-    def update_by(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def update_data(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def remove_by(self) -> Dict[str, Any]:
+    def replace(self) -> Dict[str, Any]:
         raise NotImplementedError
 
 
@@ -27,6 +23,10 @@ class Book(Entity):
     file_id: Optional[str] = None
 
     @property
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
+
+    @property
     def data(self) -> Dict[str, Any]:
         return {
             "name": self.name,
@@ -34,22 +34,18 @@ class Book(Entity):
         }
 
     @property
-    def update_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def update_data(self) -> Dict[str, Any]:
+    def replace(self) -> Dict[str, Any]:
         return {"file_id": self.file_id}
-
-    @property
-    def remove_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
 
 
 @dataclass
 class Link(Entity):
     name: str
     url: Optional[str] = None
+
+    @property
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -59,16 +55,8 @@ class Link(Entity):
         }
 
     @property
-    def update_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def update_data(self) -> Dict[str, Any]:
+    def replace(self) -> Dict[str, Any]:
         return {"url": self.url}
-
-    @property
-    def remove_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
 
 
 @dataclass
@@ -78,6 +66,10 @@ class Photo(Entity):
     document_ids: List[str] = field(default_factory=list)
 
     @property
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
+
+    @property
     def data(self) -> Dict[str, Any]:
         return {
             "name": self.name,
@@ -86,25 +78,21 @@ class Photo(Entity):
         }
 
     @property
-    def update_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def update_data(self) -> Dict[str, Any]:
+    def replace(self) -> Dict[str, Any]:
         return {
             "photo_ids": self.photo_ids,
             "document_ids": self.document_ids,
         }
-
-    @property
-    def remove_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
 
 
 @dataclass
 class Archive(Entity):
     name: str
     file_id: Optional[str] = None
+
+    @property
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -114,13 +102,5 @@ class Archive(Entity):
         }
 
     @property
-    def update_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def update_data(self) -> Dict[str, Any]:
+    def replace(self) -> Dict[str, Any]:
         return {"file_id": self.file_id}
-
-    @property
-    def remove_by(self) -> Dict[str, Any]:
-        return {"name": self.name}
