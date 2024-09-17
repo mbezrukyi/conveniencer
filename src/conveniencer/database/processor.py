@@ -33,7 +33,7 @@ class CollectionProcessor:
             {"user_id": self._user_id, **entity.by}
         )
 
-        if result.modified_count == 0:
+        if result.deleted_count == 0:
             raise NoDocumentError("No document was found to delete.")
 
     async def to_list(self) -> List[Entity]:
