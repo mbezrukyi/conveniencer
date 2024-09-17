@@ -54,7 +54,7 @@ async def handle_books_category(
 
     chat_id = query.message.chat.id
 
-    processor = CollectionProcessor(db.books, Book)
+    processor = CollectionProcessor(query.from_user.id, db.books, Book)
 
     books = await processor.to_list()
 
@@ -117,7 +117,7 @@ async def add_book(
 ) -> None:
     book = Book(name=message.caption, file_id=message.document.file_id)
 
-    processor = CollectionProcessor(db.books, Book)
+    processor = CollectionProcessor(message.from_user.id, db.books, Book)
 
     try:
         await processor.add(book)
@@ -166,7 +166,7 @@ async def remove_book(
 ) -> None:
     book = Book(name=message.text)
 
-    processor = CollectionProcessor(db.books, Book)
+    processor = CollectionProcessor(message.from_user.id, db.books, Book)
 
     try:
         await processor.remove(book)
@@ -200,7 +200,7 @@ async def handle_links_category(
 
     chat_id = query.message.chat.id
 
-    processor = CollectionProcessor(db.links, Link)
+    processor = CollectionProcessor(query.from_user.id, db.links, Link)
 
     links = await processor.to_list()
 
@@ -257,7 +257,7 @@ async def add_link(
 
     link = Link(name=name, url=url)
 
-    processor = CollectionProcessor(db.links, Link)
+    processor = CollectionProcessor(message.from_user.id, db.links, Link)
 
     try:
         await processor.add(link)
@@ -306,7 +306,7 @@ async def remove_link(
 ) -> None:
     link = Link(name=message.text)
 
-    processor = CollectionProcessor(db.links, Link)
+    processor = CollectionProcessor(message.from_user.id, db.links, Link)
 
     try:
         await processor.remove(link)
@@ -340,7 +340,7 @@ async def handle_photos_category(
 
     chat_id = query.message.chat.id
 
-    processor = CollectionProcessor(db.photos, Photo)
+    processor = CollectionProcessor(query.from_user.id, db.photos, Photo)
 
     photos = await processor.to_list()
 
@@ -471,12 +471,12 @@ async def add_photo(
 
         return None
 
-    processor = CollectionProcessor(db.photos, Photo)
+    processor = CollectionProcessor(message.from_user.id, db.photos, Photo)
 
     photo = Photo(
+        name=message.text,
         photo_ids=photo_ids,
         document_ids=document_ids,
-        name=message.text,
     )
 
     try:
@@ -526,7 +526,7 @@ async def remove_photo(
 ) -> None:
     photo = Photo(name=message.text)
 
-    processor = CollectionProcessor(db.photos, Photo)
+    processor = CollectionProcessor(message.from_user.id, db.photos, Photo)
 
     try:
         await processor.remove(photo)
@@ -561,7 +561,7 @@ async def handle_archives_category(
 
     chat_id = query.message.chat.id
 
-    processor = CollectionProcessor(db.archives, Archive)
+    processor = CollectionProcessor(query.from_user.id, db.archives, Archive)
 
     archives = await processor.to_list()
 
@@ -630,7 +630,7 @@ async def add_archive(
         file_id=message.document.file_id,
     )
 
-    processor = CollectionProcessor(db.archives, Archive)
+    processor = CollectionProcessor(message.from_user.id, db.archives, Archive)
 
     try:
         await processor.add(archive)
@@ -679,7 +679,7 @@ async def remove_archive(
 ) -> None:
     archive = Archive(name=message.text)
 
-    processor = CollectionProcessor(db.archives, Archive)
+    processor = CollectionProcessor(message.from_user.id, db.archives, Archive)
 
     try:
         await processor.remove(archive)

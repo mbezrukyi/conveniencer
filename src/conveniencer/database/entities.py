@@ -5,15 +5,11 @@ from typing import Any, Dict, List, Optional
 
 class Entity(ABC):
     @abstractmethod
+    def to_dict(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
     def by(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def data(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def replace(self) -> Dict[str, Any]:
         raise NotImplementedError
 
 
@@ -22,20 +18,15 @@ class Book(Entity):
     name: str
     file_id: Optional[str] = None
 
-    @property
-    def by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def data(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "file_id": self.file_id,
         }
 
     @property
-    def replace(self) -> Dict[str, Any]:
-        return {"file_id": self.file_id}
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
 
 
 @dataclass
@@ -48,15 +39,11 @@ class Link(Entity):
         return {"name": self.name}
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "url": self.url,
         }
-
-    @property
-    def replace(self) -> Dict[str, Any]:
-        return {"url": self.url}
 
 
 @dataclass
@@ -65,12 +52,7 @@ class Photo(Entity):
     photo_ids: List[str] = field(default_factory=list)
     document_ids: List[str] = field(default_factory=list)
 
-    @property
-    def by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def data(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "photo_ids": self.photo_ids,
@@ -78,11 +60,8 @@ class Photo(Entity):
         }
 
     @property
-    def replace(self) -> Dict[str, Any]:
-        return {
-            "photo_ids": self.photo_ids,
-            "document_ids": self.document_ids,
-        }
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
 
 
 @dataclass
@@ -90,17 +69,12 @@ class Archive(Entity):
     name: str
     file_id: Optional[str] = None
 
-    @property
-    def by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
-    def data(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "file_id": self.file_id,
         }
 
     @property
-    def replace(self) -> Dict[str, Any]:
-        return {"file_id": self.file_id}
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
