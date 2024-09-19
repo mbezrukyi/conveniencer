@@ -24,13 +24,13 @@ class CollectionProcessor:
 
     async def replace(self, entity: Entity) -> None:
         await self._collection.update_one(
-            {"user_id": self._user_id, **entity.by},
+            {"user_id": self._user_id, **entity.by()},
             {"$set": entity.to_dict()},
         )
 
     async def remove(self, entity: Entity) -> None:
         result = await self._collection.delete_one(
-            {"user_id": self._user_id, **entity.by}
+            {"user_id": self._user_id, **entity.by()}
         )
 
         if result.deleted_count == 0:

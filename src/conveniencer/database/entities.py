@@ -24,7 +24,6 @@ class Book(Entity):
             "file_id": self.file_id,
         }
 
-    @property
     def by(self) -> Dict[str, Any]:
         return {"name": self.name}
 
@@ -34,16 +33,14 @@ class Link(Entity):
     name: str
     url: Optional[str] = None
 
-    @property
-    def by(self) -> Dict[str, Any]:
-        return {"name": self.name}
-
-    @property
     def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "url": self.url,
         }
+
+    def by(self) -> Dict[str, Any]:
+        return {"name": self.name}
 
 
 @dataclass
@@ -59,7 +56,6 @@ class Photo(Entity):
             "document_ids": self.document_ids,
         }
 
-    @property
     def by(self) -> Dict[str, Any]:
         return {"name": self.name}
 
@@ -75,6 +71,5 @@ class Archive(Entity):
             "file_id": self.file_id,
         }
 
-    @property
     def by(self) -> Dict[str, Any]:
         return {"name": self.name}
