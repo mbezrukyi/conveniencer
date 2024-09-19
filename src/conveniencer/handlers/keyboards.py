@@ -1,8 +1,4 @@
-from enum import Enum
-from typing import Type
-
 from aiogram.types import InlineKeyboardMarkup
-from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from .callbacks import (
@@ -10,41 +6,38 @@ from .callbacks import (
     CategoryAction,
     CategoryCB,
     CategoryActionCB,
-    CallbackDataType,
 )
 
 
-def build_keyboard(
-    items: Enum,
-    callback_cls: Type[CallbackData],
-    callback_data_type: CallbackDataType,
-) -> InlineKeyboardBuilder:
+def build_categories_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
-    for item in items:
+    for category in Category:
         builder.button(
-            text=item.value.title(),
-            callback_data=callback_cls(**{callback_data_type.value: item}),
+            text=category.value.title(),
+            callback_data=CategoryCB(category=category),
         )
 
-    return builder
+    return builder.adjust(1, repeat=True).as_markup()
 
 
-def build_categories_keyboard() -> InlineKeyboardMarkup:
-    return (
-        build_keyboard(
-            Category,
-            CategoryCB,
-            CallbackDataType.CATEGORY,
-        )
-        .adjust(1, repeat=True)
-        .as_markup()
+def build_actions_keyboard(
+    add: CategoryAction,
+    remove: CategoryAction,
+) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="Add",
+        callback_data=CategoryActionCB(category_action=add),
+    )
+    builder.button(
+        text="Remove",
+        callback_data=CategoryActionCB(category_action=remove),
+    )
+    builder.button(
+        text="Back",
+        callback_data=CategoryActionCB(category_action=CategoryAction.BACK),
     )
 
-
-def build_add_remove_keyboard() -> InlineKeyboardMarkup:
-    return build_keyboard(
-        CategoryAction,
-        CategoryActionCB,
-        CallbackDataType.CATEGORY_ACTION,
-    ).as_markup()
+    return builder.adjust(2, 1).as_markup()

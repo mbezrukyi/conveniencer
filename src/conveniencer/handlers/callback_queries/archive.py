@@ -14,7 +14,7 @@ from ..callbacks import (
     CategoryCB,
     CategoryActionCB,
 )
-from ..keyboards import build_add_remove_keyboard
+from ..keyboards import build_actions_keyboard
 from .states import CategoryState
 
 router = Router(name=__name__)
@@ -23,14 +23,16 @@ router = Router(name=__name__)
 @router.callback_query(CategoryCB.filter(F.category == Category.ARCHIVES))
 async def handle_archives_category(
     query: CallbackQuery,
-    state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    await state.set_state(CategoryState.archive)
-
     processor = CollectionProcessor(query.from_user.id, db.archives, Archive)
 
     archives = await processor.to_list()
+
+    keyboard = build_actions_keyboard(
+        add=CategoryAction.ADD_ARCHIVE,
+        remove=CategoryAction.REMOVE_ARCHIVE,
+    )
 
     if archives:
         await query.message.answer(text="Your archives:")
@@ -41,20 +43,19 @@ async def handle_archives_category(
                 caption=archive.name,
             )
 
-        await query.message.answer(
+        await query.message.edit_text(
             text="What do you want to do?",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
     else:
-        await query.message.answer(
+        await query.message.edit_text(
             text="Add your first archive",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
 
 
 @router.callback_query(
-    CategoryState.archive,
-    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD_ARCHIVE)
 )
 async def handle_add_archive(
     query: CallbackQuery,
@@ -71,7 +72,7 @@ async def handle_add_archive(
         ")",
     )
 
-    await query.message.answer(**content.as_kwargs())
+    await query.answer(**content.as_kwargs())
 
 
 @router.message(
@@ -115,8 +116,7 @@ async def add_archive(
 
 
 @router.callback_query(
-    CategoryState.archive,
-    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE_ARCHIVE)
 )
 async def handle_remove_archive(
     query: CallbackQuery,
@@ -124,7 +124,7 @@ async def handle_remove_archive(
 ) -> None:
     await state.set_state(CategoryState.remove_archive)
 
-    await query.message.answer(text="Specify an archive name to delete")
+    await query.answer(text="Specify an archive name to delete")
 
 
 @router.message(CategoryState.remove_archive, F.text)

@@ -14,7 +14,7 @@ from ..callbacks import (
     CategoryCB,
     CategoryActionCB,
 )
-from ..keyboards import build_add_remove_keyboard
+from ..keyboards import build_actions_keyboard
 from .states import CategoryState
 
 router = Router(name=__name__)
@@ -23,14 +23,16 @@ router = Router(name=__name__)
 @router.callback_query(CategoryCB.filter(F.category == Category.BOOKS))
 async def handle_books_category(
     query: CallbackQuery,
-    state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    await state.set_state(CategoryState.book)
-
     processor = CollectionProcessor(query.from_user.id, db.books, Book)
 
     books = await processor.to_list()
+
+    keyboard = build_actions_keyboard(
+        add=CategoryAction.ADD_BOOK,
+        remove=CategoryAction.REMOVE_BOOK,
+    )
 
     if books:
         await query.message.answer(text="Your books:")
@@ -41,20 +43,19 @@ async def handle_books_category(
                 caption=book.name,
             )
 
-        await query.message.answer(
+        await query.message.edit_text(
             text="What do you want to do?",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
     else:
-        await query.message.answer(
+        await query.message.edit_text(
             text="Add your first book",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
 
 
 @router.callback_query(
-    CategoryState.book,
-    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD_BOOK)
 )
 async def handle_add_book(
     query: CallbackQuery,
@@ -68,7 +69,7 @@ async def handle_add_book(
         ")",
     )
 
-    await query.message.answer(**content.as_kwargs())
+    await query.answer(**content.as_kwargs())
 
 
 @router.message(
@@ -109,8 +110,7 @@ async def add_book(
 
 
 @router.callback_query(
-    CategoryState.book,
-    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE_BOOK)
 )
 async def handle_remove_book(
     query: CallbackQuery,
@@ -118,7 +118,7 @@ async def handle_remove_book(
 ) -> None:
     await state.set_state(CategoryState.remove_book)
 
-    await query.message.answer(text="Specify a book name to delete")
+    await query.answer(text="Specify a book name to delete")
 
 
 @router.message(CategoryState.remove_book, F.text)

@@ -4,10 +4,10 @@ from aiogram.filters.callback_data import CallbackData
 
 
 class Category(Enum):
+    ARCHIVES = "archives"
     BOOKS = "books"
     LINKS = "links"
     PHOTOS = "photos"
-    ARCHIVES = "archives"
 
 
 class CategoryCB(CallbackData, prefix="ctg"):
@@ -15,14 +15,20 @@ class CategoryCB(CallbackData, prefix="ctg"):
 
 
 class CategoryAction(Enum):
-    ADD = "add"
-    REMOVE = "remove"
+    ADD_ARCHIVE = "add_archive"
+    REMOVE_ARCHIVE = "remove_archive"
+
+    ADD_BOOK = "add_book"
+    REMOVE_BOOK = "remove_book"
+
+    ADD_LINK = "add_link"
+    REMOVE_LINK = "remove_link"
+
+    ADD_PHOTO = "add_photo"
+    REMOVE_PHOTO = "remove_photo"
+
+    BACK = "back"
 
 
 class CategoryActionCB(CallbackData, prefix="can"):
     category_action: CategoryAction
-
-
-class CallbackDataType(Enum):
-    CATEGORY = "category"
-    CATEGORY_ACTION = "category_action"

@@ -16,7 +16,7 @@ from ..callbacks import (
     CategoryCB,
     CategoryActionCB,
 )
-from ..keyboards import build_add_remove_keyboard
+from ..keyboards import build_actions_keyboard
 from .states import CategoryState
 
 router = Router(name=__name__)
@@ -25,14 +25,16 @@ router = Router(name=__name__)
 @router.callback_query(CategoryCB.filter(F.category == Category.PHOTOS))
 async def handle_photos_category(
     query: CallbackQuery,
-    state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    await state.set_state(CategoryState.photo)
-
     processor = CollectionProcessor(query.from_user.id, db.photos, Photo)
 
     photos = await processor.to_list()
+
+    keyboard = build_actions_keyboard(
+        add=CategoryAction.ADD_PHOTO,
+        remove=CategoryAction.REMOVE_PHOTO,
+    )
 
     if photos:
         await query.message.answer(text="Your photos:")
@@ -41,14 +43,14 @@ async def handle_photos_category(
             await send_photos(query.message, photo.photo_ids, photo.name)
             await send_documents(query.message, photo.document_ids, photo.name)
 
-        await query.message.answer(
+        await query.message.edit_text(
             text="What do you want to do?",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
     else:
-        await query.message.answer(
+        await query.message.edit_text(
             text="Add your first photo",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
 
 
@@ -93,8 +95,7 @@ async def send_documents(
 
 
 @router.callback_query(
-    CategoryState.photo,
-    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD_PHOTO)
 )
 async def handle_add_photo(
     query: CallbackQuery,
@@ -102,9 +103,7 @@ async def handle_add_photo(
 ) -> None:
     await state.set_state(CategoryState.add_photo)
 
-    await query.message.answer(
-        text="Paste photos and specify a name explicitly"
-    )
+    await query.answer(text="Paste photos and specify a name explicitly")
 
 
 @router.message(CategoryState.add_photo, F.photo)
@@ -180,8 +179,7 @@ async def add_photo(
 
 
 @router.callback_query(
-    CategoryState.photo,
-    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE_PHOTO)
 )
 async def handle_remove_photo(
     query: CallbackQuery,
@@ -189,7 +187,7 @@ async def handle_remove_photo(
 ) -> None:
     await state.set_state(CategoryState.remove_photo)
 
-    await query.message.answer(text="Specify a photo name to delete")
+    await query.answer(text="Specify a photo name to delete")
 
 
 @router.message(CategoryState.remove_photo, F.text)

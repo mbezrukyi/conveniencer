@@ -14,7 +14,7 @@ from ..callbacks import (
     CategoryCB,
     CategoryActionCB,
 )
-from ..keyboards import build_add_remove_keyboard
+from ..keyboards import build_actions_keyboard
 from .states import CategoryState
 
 router = Router(name=__name__)
@@ -23,14 +23,16 @@ router = Router(name=__name__)
 @router.callback_query(CategoryCB.filter(F.category == Category.LINKS))
 async def handle_links_category(
     query: CallbackQuery,
-    state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    await state.set_state(CategoryState.link)
-
     processor = CollectionProcessor(query.from_user.id, db.links, Link)
 
     links = await processor.to_list()
+
+    keyboard = build_actions_keyboard(
+        add=CategoryAction.ADD_LINK,
+        remove=CategoryAction.REMOVE_LINK,
+    )
 
     if links:
         await query.message.answer(text="Your links:")
@@ -40,20 +42,19 @@ async def handle_links_category(
 
             await query.message.answer(**content.as_kwargs())
 
-        await query.message.answer(
+        await query.message.edit_text(
             text="What do you want to do?",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
     else:
-        await query.message.answer(
+        await query.message.edit_text(
             text="Add your first link",
-            reply_markup=build_add_remove_keyboard(),
+            reply_markup=keyboard,
         )
 
 
 @router.callback_query(
-    CategoryState.link,
-    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD_LINK)
 )
 async def handle_add_link(
     query: CallbackQuery,
@@ -66,7 +67,7 @@ async def handle_add_link(
         Italic("{name: (https|http)://...}"),
     )
 
-    await query.message.answer(**content.as_kwargs())
+    await query.answer(**content.as_kwargs())
 
 
 @router.message(CategoryState.add_link, LinkFilter())
@@ -104,8 +105,7 @@ async def add_link(
 
 
 @router.callback_query(
-    CategoryState.link,
-    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE_LINK)
 )
 async def handle_remove_link(
     query: CallbackQuery,
@@ -113,7 +113,7 @@ async def handle_remove_link(
 ) -> None:
     await state.set_state(CategoryState.remove_link)
 
-    await query.message.answer(text="Specify a link name to delete")
+    await query.answer(text="Specify a link name to delete")
 
 
 @router.message(CategoryState.remove_link, F.text)
