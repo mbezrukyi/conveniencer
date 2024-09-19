@@ -11,7 +11,7 @@ class Category(Enum):
     OTHER = "other"
 
 
-class CallbackCategory(CallbackData, prefix="ctg"):
+class CategoryCB(CallbackData, prefix="ctg"):
     category: Category
 
 
@@ -20,7 +20,7 @@ class CategoryAction(Enum):
     REMOVE = "remove"
 
 
-class CallbackCategoryAction(CallbackData, prefix="can"):
+class CategoryActionCB(CallbackData, prefix="can"):
     category_action: CategoryAction
 
 

@@ -13,11 +13,11 @@ from conveniencer.filters import DocumentTypeFilter, LinkFilter
 from conveniencer.database.processor import CollectionProcessor
 from conveniencer.database.entities import Archive, Book, Link, Photo
 from conveniencer.database.errors import NoDocumentError
-from ..callback_data import (
-    CallbackCategory,
-    CallbackCategoryAction,
+from ..callbacks import (
     Category,
     CategoryAction,
+    CategoryCB,
+    CategoryActionCB,
 )
 from ..keyboards import build_add_remove_keyboard
 
@@ -42,7 +42,7 @@ class Action(StatesGroup):
     remove_archive = State()
 
 
-@router.callback_query(CallbackCategory.filter(F.category == Category.BOOKS))
+@router.callback_query(CategoryCB.filter(F.category == Category.BOOKS))
 async def handle_books_category(
     query: CallbackQuery,
     bot: Bot,
@@ -82,7 +82,7 @@ async def handle_books_category(
 
 @router.callback_query(
     Action.book,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
 )
 async def handle_add_book(
     query: CallbackQuery,
@@ -142,7 +142,7 @@ async def add_book(
 
 @router.callback_query(
     Action.book,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
 )
 async def handle_remove_book(
     query: CallbackQuery,
@@ -188,7 +188,7 @@ async def remove_book(
     await state.clear()
 
 
-@router.callback_query(CallbackCategory.filter(F.category == Category.LINKS))
+@router.callback_query(CategoryCB.filter(F.category == Category.LINKS))
 async def handle_links_category(
     query: CallbackQuery,
     bot: Bot,
@@ -226,7 +226,7 @@ async def handle_links_category(
 
 @router.callback_query(
     Action.link,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
 )
 async def handle_add_link(
     query: CallbackQuery,
@@ -282,7 +282,7 @@ async def add_link(
 
 @router.callback_query(
     Action.link,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
 )
 async def handle_remove_link(
     query: CallbackQuery,
@@ -328,7 +328,7 @@ async def remove_link(
     await state.clear()
 
 
-@router.callback_query(CallbackCategory.filter(F.category == Category.PHOTOS))
+@router.callback_query(CategoryCB.filter(F.category == Category.PHOTOS))
 async def handle_photos_category(
     query: CallbackQuery,
     bot: Bot,
@@ -413,7 +413,7 @@ async def send_documents(
 
 @router.callback_query(
     Action.photo,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
 )
 async def handle_add_photo(
     query: CallbackQuery,
@@ -502,7 +502,7 @@ async def add_photo(
 
 @router.callback_query(
     Action.photo,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
 )
 async def handle_remove_photo(
     query: CallbackQuery,
@@ -547,9 +547,7 @@ async def remove_photo(
     await state.clear()
 
 
-@router.callback_query(
-    CallbackCategory.filter(F.category == Category.ARCHIVES)
-)
+@router.callback_query(CategoryCB.filter(F.category == Category.ARCHIVES))
 async def handle_archives_category(
     query: CallbackQuery,
     bot: Bot,
@@ -589,7 +587,7 @@ async def handle_archives_category(
 
 @router.callback_query(
     Action.archive,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.ADD),
+    CategoryActionCB.filter(F.category_action == CategoryAction.ADD),
 )
 async def handle_add_archive(
     query: CallbackQuery,
@@ -655,7 +653,7 @@ async def add_archive(
 
 @router.callback_query(
     Action.archive,
-    CallbackCategoryAction.filter(F.category_action == CategoryAction.REMOVE),
+    CategoryActionCB.filter(F.category_action == CategoryAction.REMOVE),
 )
 async def handle_remove_archive(
     query: CallbackQuery,
