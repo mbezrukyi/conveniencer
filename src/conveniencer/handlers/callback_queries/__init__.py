@@ -1,9 +1,12 @@
 from aiogram import Router
 
-from . import categories
+from . import archive, book, link, photo
 
 router = Router(name="callback_queries")
 
 router.include_routers(
-    categories.router,
+    archive.router,
+    book.router,
+    link.router,
+    photo.router,
 )

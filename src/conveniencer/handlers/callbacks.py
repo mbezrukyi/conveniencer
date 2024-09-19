@@ -8,7 +8,6 @@ class Category(Enum):
     LINKS = "links"
     PHOTOS = "photos"
     ARCHIVES = "archives"
-    OTHER = "other"
 
 
 class CategoryCB(CallbackData, prefix="ctg"):
