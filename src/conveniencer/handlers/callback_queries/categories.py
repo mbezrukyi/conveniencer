@@ -9,11 +9,10 @@ from aiogram.utils.media_group import MediaGroupBuilder
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
+from conveniencer.filters import DocumentTypeFilter, LinkFilter
 from conveniencer.database.processor import CollectionProcessor
 from conveniencer.database.entities import Archive, Book, Link, Photo
 from conveniencer.database.errors import NoDocumentError
-from conveniencer.filters.document_type import DocumentTypeFilter
-from conveniencer.filters.link import LinkFilter
 from ..callback_data import (
     CallbackCategory,
     CallbackCategoryAction,
