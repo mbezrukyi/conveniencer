@@ -25,9 +25,9 @@ async def handle_archives_category(
     query: CallbackQuery,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    processor = CollectionProcessor(query.from_user.id, db.archives, Archive)
+    processor = CollectionProcessor(db.archives, Archive)
 
-    archives = await processor.to_list()
+    archives = await processor.to_list(query.from_user.id)
 
     keyboard = build_actions_keyboard(
         add=CategoryAction.ADD_ARCHIVE,
@@ -86,12 +86,13 @@ async def add_archive(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
+    processor = CollectionProcessor(db.archives, Archive)
+
     archive = Archive(
+        user_id=message.from_user.id,
         name=message.caption,
         file_id=message.document.file_id,
     )
-
-    processor = CollectionProcessor(message.from_user.id, db.archives, Archive)
 
     try:
         await processor.add(archive)
@@ -133,9 +134,9 @@ async def remove_archive(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    archive = Archive(name=message.text)
+    processor = CollectionProcessor(db.archives, Archive)
 
-    processor = CollectionProcessor(message.from_user.id, db.archives, Archive)
+    archive = Archive(user_id=message.from_user.id, name=message.text)
 
     try:
         await processor.remove(archive)

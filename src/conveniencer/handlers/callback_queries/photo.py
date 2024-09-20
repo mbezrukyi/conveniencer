@@ -27,9 +27,9 @@ async def handle_photos_category(
     query: CallbackQuery,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    processor = CollectionProcessor(query.from_user.id, db.photos, Photo)
+    processor = CollectionProcessor(db.photos, Photo)
 
-    photos = await processor.to_list()
+    photos = await processor.to_list(query.from_user.id)
 
     keyboard = build_actions_keyboard(
         add=CategoryAction.ADD_PHOTO,
@@ -138,6 +138,8 @@ async def add_photo(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
+    processor = CollectionProcessor(db.photos, Photo)
+
     data = await state.get_data()
 
     photo_ids = data.get("photo_ids", [])
@@ -148,9 +150,8 @@ async def add_photo(
 
         return None
 
-    processor = CollectionProcessor(message.from_user.id, db.photos, Photo)
-
     photo = Photo(
+        user_id=message.from_user.id,
         name=message.text,
         photo_ids=photo_ids,
         document_ids=document_ids,
@@ -196,9 +197,9 @@ async def remove_photo(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    photo = Photo(name=message.text)
+    processor = CollectionProcessor(db.photos, Photo)
 
-    processor = CollectionProcessor(message.from_user.id, db.photos, Photo)
+    photo = Photo(user_id=message.from_user.id, name=message.text)
 
     try:
         await processor.remove(photo)

@@ -25,9 +25,9 @@ async def handle_books_category(
     query: CallbackQuery,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    processor = CollectionProcessor(query.from_user.id, db.books, Book)
+    processor = CollectionProcessor(db.books, Book)
 
-    books = await processor.to_list()
+    books = await processor.to_list(query.from_user.id)
 
     keyboard = build_actions_keyboard(
         add=CategoryAction.ADD_BOOK,
@@ -83,9 +83,13 @@ async def add_book(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    book = Book(name=message.caption, file_id=message.document.file_id)
+    processor = CollectionProcessor(db.books, Book)
 
-    processor = CollectionProcessor(message.from_user.id, db.books, Book)
+    book = Book(
+        user_id=message.from_user.id,
+        name=message.caption,
+        file_id=message.document.file_id,
+    )
 
     try:
         await processor.add(book)
@@ -127,9 +131,9 @@ async def remove_book(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    book = Book(name=message.text)
+    processor = CollectionProcessor(db.books, Book)
 
-    processor = CollectionProcessor(message.from_user.id, db.books, Book)
+    book = Book(user_id=message.from_user.id, name=message.text)
 
     try:
         await processor.remove(book)

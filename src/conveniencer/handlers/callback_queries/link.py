@@ -25,9 +25,9 @@ async def handle_links_category(
     query: CallbackQuery,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    processor = CollectionProcessor(query.from_user.id, db.links, Link)
+    processor = CollectionProcessor(db.links, Link)
 
-    links = await processor.to_list()
+    links = await processor.to_list(query.from_user.id)
 
     keyboard = build_actions_keyboard(
         add=CategoryAction.ADD_LINK,
@@ -76,11 +76,12 @@ async def add_link(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    name, url = message.text.split(":", 1)
+    processor = CollectionProcessor(db.links, Link)
 
-    link = Link(name=name, url=url)
-
-    processor = CollectionProcessor(message.from_user.id, db.links, Link)
+    link = Link(
+        message.from_user.id,
+        *message.text.split(":", 1),
+    )
 
     try:
         await processor.add(link)
@@ -122,9 +123,9 @@ async def remove_link(
     state: FSMContext,
     db: AsyncIOMotorDatabase,
 ) -> None:
-    link = Link(name=message.text)
+    processor = CollectionProcessor(db.links, Link)
 
-    processor = CollectionProcessor(message.from_user.id, db.links, Link)
+    link = Link(user_id=message.from_user.id, name=message.text)
 
     try:
         await processor.remove(link)

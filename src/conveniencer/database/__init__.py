@@ -1,4 +1,4 @@
-from .entities import (
+from .documents import (
     Archive,
     Book,
     Link,
